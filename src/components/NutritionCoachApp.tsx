@@ -1,14 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Home, BookHeart, BarChart2, User } from 'lucide-react';
+import { Home, BookHeart, BarChart2, User, UtensilsCrossed } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
-// Import screen components that we'll create later
+// Import screen components
 import HomeScreen from '@/components/screens/HomeScreen';
 import MindfulnessJournalScreen from '@/components/screens/MindfulnessJournalScreen';
 import InsightsScreen from '@/components/screens/InsightsScreen';
 import ProfileScreen from '@/components/screens/ProfileScreen';
+import MealTrackingScreen from '@/components/screens/MealTrackingScreen';
 
 // Navigation Button Component
 const NavButton = ({ icon, label, isActive, onClick }: { 
@@ -45,6 +46,28 @@ const NutritionCoachApp = () => {
     return () => clearTimeout(timer);
   }, []);
   
+  // Check URL hash on load and when it changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && ['home', 'journal', 'insights', 'profile', 'meals'].includes(hash)) {
+        setActiveTab(hash);
+      }
+    };
+    
+    // Check initial hash
+    handleHashChange();
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+  
+  // Update hash when tab changes
+  useEffect(() => {
+    window.location.hash = activeTab;
+  }, [activeTab]);
+  
   // If user is not authenticated, redirect to login
   if (!user && !isLoading) {
     return <Navigate to="/auth" />;
@@ -61,6 +84,8 @@ const NutritionCoachApp = () => {
         return <InsightsScreen />;
       case 'profile':
         return <ProfileScreen />;
+      case 'meals':
+        return <MealTrackingScreen />;
       default:
         return <HomeScreen />;
     }
@@ -94,6 +119,12 @@ const NutritionCoachApp = () => {
             label="Home" 
             isActive={activeTab === 'home'} 
             onClick={() => setActiveTab('home')} 
+          />
+          <NavButton 
+            icon={<UtensilsCrossed size={24} />} 
+            label="Meals" 
+            isActive={activeTab === 'meals'} 
+            onClick={() => setActiveTab('meals')} 
           />
           <NavButton 
             icon={<BookHeart size={24} />} 

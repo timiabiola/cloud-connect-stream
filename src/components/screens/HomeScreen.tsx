@@ -90,6 +90,9 @@ const HomeScreen = () => {
       case 'journal':
         window.location.hash = 'journal';
         break;
+      case 'meals':
+        window.location.hash = 'meals';
+        break;
       case 'voice':
         // Already handled in QuickActions component
         break;

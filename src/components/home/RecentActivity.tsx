@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BookHeart, ChevronRight } from 'lucide-react';
+import { BookHeart, ChevronRight, UtensilsCrossed } from 'lucide-react';
 import { RecentActivityType } from '@/services/homeService';
 import ActivityCard from './ActivityCard';
 
@@ -9,6 +9,9 @@ interface RecentActivityProps {
 }
 
 const RecentActivity = ({ activity }: RecentActivityProps) => {
+  const hasActivity = (activity.journals && activity.journals.length > 0) || 
+                     (activity.meals && activity.meals.length > 0);
+  
   return (
     <section className="bg-white rounded-xl shadow-sm p-4">
       <div className="flex justify-between items-center mb-3">
@@ -19,26 +22,30 @@ const RecentActivity = ({ activity }: RecentActivityProps) => {
       </div>
       
       <div className="space-y-3">
-        {activity.journals && activity.journals.length > 0 ? (
-          activity.journals.map(entry => (
-            <ActivityCard 
-              key={entry.id}
-              icon={<BookHeart size={16} className="text-blue-600" />}
-              title={entry.title || "Journal Entry"}
-              subtitle={`${entry.type}${entry.mood ? ` • Mood: ${entry.mood}` : ''}`}
-              time={entry.time}
-            />
-          ))
-        ) : (
-          <div className="text-sm text-slate-500 italic text-center py-2">
-            No journal entries yet today
-          </div>
-        )}
+        {activity.meals && activity.meals.map(meal => (
+          <ActivityCard 
+            key={meal.id}
+            icon={<UtensilsCrossed size={16} className="text-emerald-600" />}
+            title={meal.type}
+            subtitle={meal.items || "No items"}
+            time={meal.time}
+          />
+        ))}
         
-        {(!activity.journals || activity.journals.length === 0) && (
+        {activity.journals && activity.journals.map(entry => (
+          <ActivityCard 
+            key={entry.id}
+            icon={<BookHeart size={16} className="text-blue-600" />}
+            title={entry.title || "Journal Entry"}
+            subtitle={`${entry.type}${entry.mood ? ` • Mood: ${entry.mood}` : ''}`}
+            time={entry.time}
+          />
+        ))}
+        
+        {!hasActivity && (
           <div className="text-center py-4 text-slate-500">
             <p className="font-medium">Start tracking your wellness journey</p>
-            <p className="text-sm">Journal your thoughts and feelings to see them here</p>
+            <p className="text-sm">Log meals and journal your thoughts to see them here</p>
           </div>
         )}
       </div>

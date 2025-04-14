@@ -103,6 +103,45 @@ export type Database = {
           },
         ]
       }
+      food_database: {
+        Row: {
+          calories: number
+          carbs_g: number | null
+          category: string
+          created_at: string
+          fat_g: number | null
+          id: string
+          name: string
+          protein_g: number | null
+          serving: string
+          updated_at: string
+        }
+        Insert: {
+          calories: number
+          carbs_g?: number | null
+          category: string
+          created_at?: string
+          fat_g?: number | null
+          id?: string
+          name: string
+          protein_g?: number | null
+          serving: string
+          updated_at?: string
+        }
+        Update: {
+          calories?: number
+          carbs_g?: number | null
+          category?: string
+          created_at?: string
+          fat_g?: number | null
+          id?: string
+          name?: string
+          protein_g?: number | null
+          serving?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           content: string
@@ -146,6 +185,83 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      meal_items: {
+        Row: {
+          calories: number
+          carbs_g: number | null
+          created_at: string
+          fat_g: number | null
+          food_name: string
+          id: string
+          meal_log_id: string
+          protein_g: number | null
+          quantity: string
+          updated_at: string
+        }
+        Insert: {
+          calories: number
+          carbs_g?: number | null
+          created_at?: string
+          fat_g?: number | null
+          food_name: string
+          id?: string
+          meal_log_id: string
+          protein_g?: number | null
+          quantity: string
+          updated_at?: string
+        }
+        Update: {
+          calories?: number
+          carbs_g?: number | null
+          created_at?: string
+          fat_g?: number | null
+          food_name?: string
+          id?: string
+          meal_log_id?: string
+          protein_g?: number | null
+          quantity?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_items_meal_log_id_fkey"
+            columns: ["meal_log_id"]
+            isOneToOne: false
+            referencedRelation: "meal_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_logs: {
+        Row: {
+          created_at: string
+          id: string
+          meal_date: string
+          meal_time: string
+          meal_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meal_date?: string
+          meal_time: string
+          meal_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meal_date?: string
+          meal_time?: string
+          meal_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       nutrition_goals: {
         Row: {
@@ -379,7 +495,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_meals_by_date: {
+        Args: { user_id: string; date_param: string }
+        Returns: Json
+      }
       get_recent_activity: {
+        Args: { user_id: string; limit_count?: number }
+        Returns: Json
+      }
+      get_recent_meals: {
         Args: { user_id: string; limit_count?: number }
         Returns: Json
       }
@@ -389,6 +513,10 @@ export type Database = {
       }
       get_upcoming_reminders: {
         Args: { user_id: string; limit_count?: number }
+        Returns: Json
+      }
+      search_foods: {
+        Args: { search_term: string; limit_count?: number }
         Returns: Json
       }
     }
