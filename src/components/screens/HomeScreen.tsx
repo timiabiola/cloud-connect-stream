@@ -4,25 +4,32 @@ import { UtensilsCrossed, BookHeart, Mic, ChevronRight, Calendar } from 'lucide-
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getTodayProgress, getRecentActivity, getUpcomingReminders } from '@/services/homeService';
+import { 
+  getTodayProgress, 
+  getRecentActivity, 
+  getUpcomingReminders,
+  TodayProgressType,
+  RecentActivityType,
+  ReminderType
+} from '@/services/homeService';
 
 // HomeScreen Component
 const HomeScreen = () => {
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [todayProgress, setTodayProgress] = useState({
+  const [todayProgress, setTodayProgress] = useState<TodayProgressType>({
     meals: 0,
     journals: 0,
     totalMeals: 3,
     totalJournals: 3,
     streakDays: 0
   });
-  const [recentActivity, setRecentActivity] = useState({
+  const [recentActivity, setRecentActivity] = useState<RecentActivityType>({
     meals: [],
     journals: []
   });
-  const [upcomingReminders, setUpcomingReminders] = useState([]);
+  const [upcomingReminders, setUpcomingReminders] = useState<ReminderType[]>([]);
   
   const today = new Date();
   const formattedDate = today.toLocaleDateString('en-US', { 
@@ -71,7 +78,7 @@ const HomeScreen = () => {
   }, [user, toast]);
 
   // Handle quick action button clicks
-  const handleQuickAction = (action) => {
+  const handleQuickAction = (action: string) => {
     // Navigate to the appropriate screen based on action
     switch(action) {
       case 'meal':
@@ -241,7 +248,14 @@ const HomeScreen = () => {
   );
 };
 
-const ProgressCard = ({ icon, title, progress, total }) => {
+interface ProgressCardProps {
+  icon: React.ReactNode;
+  title: string;
+  progress: number;
+  total: number;
+}
+
+const ProgressCard = ({ icon, title, progress, total }: ProgressCardProps) => {
   const percentage = total > 0 ? (progress / total) * 100 : 0;
   
   return (
@@ -263,7 +277,14 @@ const ProgressCard = ({ icon, title, progress, total }) => {
   );
 };
 
-const QuickActionButton = ({ icon, label, color, onClick }) => {
+interface QuickActionButtonProps {
+  icon: React.ReactNode;
+  label: string;
+  color: string;
+  onClick: () => void;
+}
+
+const QuickActionButton = ({ icon, label, color, onClick }: QuickActionButtonProps) => {
   return (
     <button 
       className={`${color} rounded-xl flex flex-col items-center justify-center p-4 text-white`}
@@ -277,7 +298,14 @@ const QuickActionButton = ({ icon, label, color, onClick }) => {
   );
 };
 
-const ActivityCard = ({ icon, title, subtitle, time }) => {
+interface ActivityCardProps {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  time: string;
+}
+
+const ActivityCard = ({ icon, title, subtitle, time }: ActivityCardProps) => {
   return (
     <div className="flex items-center p-3 bg-slate-50 rounded-lg">
       <div className="bg-white p-2 rounded-full mr-3">
