@@ -1,135 +1,293 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { UtensilsCrossed, BookHeart, Mic, ChevronRight, Calendar } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { UtensilsCrossed, Leaf, Droplets, Heart } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getTodayProgress, getRecentActivity, getUpcomingReminders } from '@/services/homeService';
 
+// HomeScreen Component
 const HomeScreen = () => {
-  const { profile } = useAuth();
-  const firstName = profile?.full_name?.split(' ')[0] || 'there';
+  const { toast } = useToast();
+  const { user, profile } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [todayProgress, setTodayProgress] = useState({
+    meals: 0,
+    journals: 0,
+    totalMeals: 3,
+    totalJournals: 3,
+    streakDays: 0
+  });
+  const [recentActivity, setRecentActivity] = useState({
+    meals: [],
+    journals: []
+  });
+  const [upcomingReminders, setUpcomingReminders] = useState([]);
+  
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    month: 'long', 
+    day: 'numeric' 
+  });
 
-  // Placeholder data until we implement the full functionality
-  const todaysStats = {
-    calories: 1200,
-    totalCalorieGoal: 2000,
-    waterIntake: 3,
-    waterGoal: 8,
-    mealCount: 2,
-    journalEntries: 1
+  // Fetch data when component mounts or user changes
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      if (!user) return;
+      
+      setIsLoading(true);
+      try {
+        // Fetch today's progress
+        const progressData = await getTodayProgress(user.id);
+        if (progressData) {
+          setTodayProgress(progressData);
+        }
+        
+        // Fetch recent activity
+        const activityData = await getRecentActivity(user.id);
+        if (activityData) {
+          setRecentActivity(activityData);
+        }
+        
+        // Fetch upcoming reminders
+        const remindersData = await getUpcomingReminders(user.id);
+        if (remindersData) {
+          setUpcomingReminders(remindersData);
+        }
+      } catch (error) {
+        console.error('Error fetching home data:', error);
+        toast({
+          variant: "destructive",
+          title: "Error loading data",
+          description: "Please try again later."
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchHomeData();
+  }, [user, toast]);
+
+  // Handle quick action button clicks
+  const handleQuickAction = (action) => {
+    // Navigate to the appropriate screen based on action
+    switch(action) {
+      case 'meal':
+        window.location.hash = 'meal';
+        break;
+      case 'journal':
+        window.location.hash = 'journal';
+        break;
+      case 'voice':
+        // For future implementation
+        toast({
+          title: "Coming Soon",
+          description: "Voice notes will be available in a future update."
+        });
+        break;
+      default:
+        break;
+    }
   };
 
+  // Loading state placeholder
+  if (isLoading) {
+    return (
+      <div className="p-4 pt-8 space-y-6">
+        <Skeleton className="h-10 w-3/4" />
+        <Skeleton className="h-6 w-1/2" />
+        <Skeleton className="h-32 w-full rounded-xl" />
+        <div className="grid grid-cols-3 gap-3">
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+        </div>
+        <Skeleton className="h-48 w-full rounded-xl" />
+        <Skeleton className="h-24 w-full rounded-xl" />
+      </div>
+    );
+  }
+
   return (
-    <div className="container px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Hello, {firstName}!</h1>
-        <p className="text-slate-500">Welcome to your wellness dashboard</p>
-      </div>
-
-      {/* Today's summary card */}
-      <Card className="mb-6">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Today's Overview</CardTitle>
-          <CardDescription>Your progress so far</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Calories progress */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-medium text-slate-700">Calories</span>
-                <span className="text-sm text-slate-500">
-                  {todaysStats.calories} / {todaysStats.totalCalorieGoal} kcal
-                </span>
-              </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-emerald-500 rounded-full" 
-                  style={{ width: `${Math.min(100, (todaysStats.calories / todaysStats.totalCalorieGoal) * 100)}%` }}
-                ></div>
-              </div>
+    <div className="p-4 pt-8 space-y-6">
+      {/* Header Section */}
+      <header className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-800">
+            Welcome back{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}
+          </h1>
+          <p className="text-slate-500">{formattedDate}</p>
+        </div>
+        <div className="bg-emerald-100 rounded-full p-3">
+          <span className="text-emerald-600 font-semibold">{todayProgress.streakDays} days</span>
+        </div>
+      </header>
+      
+      {/* Daily Progress */}
+      <section className="bg-white rounded-xl shadow-sm p-4">
+        <h2 className="text-lg font-medium text-slate-800 mb-3">Today's Progress</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <ProgressCard 
+            icon={<UtensilsCrossed size={20} className="text-emerald-600" />}
+            title="Meals Logged"
+            progress={todayProgress.meals}
+            total={todayProgress.totalMeals}
+          />
+          <ProgressCard 
+            icon={<BookHeart size={20} className="text-emerald-600" />}
+            title="Journals Done"
+            progress={todayProgress.journals}
+            total={todayProgress.totalJournals}
+          />
+        </div>
+      </section>
+      
+      {/* Quick Actions */}
+      <section className="grid grid-cols-3 gap-3">
+        <QuickActionButton 
+          icon={<UtensilsCrossed size={20} />}
+          label="Log Meal"
+          color="bg-emerald-600"
+          onClick={() => handleQuickAction('meal')}
+        />
+        <QuickActionButton 
+          icon={<BookHeart size={20} />}
+          label="Journal"
+          color="bg-blue-600"
+          onClick={() => handleQuickAction('journal')}
+        />
+        <QuickActionButton 
+          icon={<Mic size={20} />}
+          label="Voice Note"
+          color="bg-purple-600"
+          onClick={() => handleQuickAction('voice')}
+        />
+      </section>
+      
+      {/* Recent Activity */}
+      <section className="bg-white rounded-xl shadow-sm p-4">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-lg font-medium text-slate-800">Recent Activity</h2>
+          <button className="text-sm text-emerald-600 flex items-center">
+            View all <ChevronRight size={16} />
+          </button>
+        </div>
+        
+        <div className="space-y-3">
+          {recentActivity.meals && recentActivity.meals.length > 0 ? (
+            recentActivity.meals.map(meal => (
+              <ActivityCard 
+                key={meal.id}
+                icon={<UtensilsCrossed size={16} className="text-emerald-600" />}
+                title={meal.type}
+                subtitle={meal.items}
+                time={meal.time}
+              />
+            ))
+          ) : (
+            <div className="text-sm text-slate-500 italic text-center py-2">
+              No meals logged yet today
             </div>
-            
-            {/* Water intake */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-medium text-slate-700">Water</span>
-                <span className="text-sm text-slate-500">
-                  {todaysStats.waterIntake} / {todaysStats.waterGoal} glasses
-                </span>
-              </div>
-              <div className="flex space-x-1">
-                {Array.from({ length: todaysStats.waterGoal }).map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={`h-6 flex-1 rounded ${i < todaysStats.waterIntake ? 'bg-blue-400' : 'bg-slate-100'}`}
-                  ></div>
-                ))}
-              </div>
+          )}
+          
+          {recentActivity.journals && recentActivity.journals.length > 0 ? (
+            recentActivity.journals.map(entry => (
+              <ActivityCard 
+                key={entry.id}
+                icon={<BookHeart size={16} className="text-blue-600" />}
+                title={entry.title || "Journal Entry"}
+                subtitle={`${entry.type}${entry.mood ? ` • Mood: ${entry.mood}` : ''}`}
+                time={entry.time}
+              />
+            ))
+          ) : (
+            <div className="text-sm text-slate-500 italic text-center py-2">
+              No journal entries yet today
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick actions */}
-      <h2 className="text-lg font-semibold text-slate-800 mb-3">Quick Actions</h2>
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <Button variant="outline" className="h-auto py-4 justify-start" onClick={() => window.location.hash = 'meal'}>
-          <div className="flex flex-col items-center w-full">
-            <UtensilsCrossed className="h-6 w-6 mb-2 text-emerald-600" />
-            <span>Log a Meal</span>
-          </div>
-        </Button>
-        <Button variant="outline" className="h-auto py-4 justify-start" onClick={() => window.location.hash = 'journal'}>
-          <div className="flex flex-col items-center w-full">
-            <Heart className="h-6 w-6 mb-2 text-pink-500" />
-            <span>Add Journal Entry</span>
-          </div>
-        </Button>
-        <Button variant="outline" className="h-auto py-4 justify-start">
-          <div className="flex flex-col items-center w-full">
-            <Droplets className="h-6 w-6 mb-2 text-blue-500" />
-            <span>Log Water</span>
-          </div>
-        </Button>
-        <Button variant="outline" className="h-auto py-4 justify-start">
-          <div className="flex flex-col items-center w-full">
-            <Leaf className="h-6 w-6 mb-2 text-green-500" />
-            <span>Log Exercise</span>
-          </div>
-        </Button>
-      </div>
-
-      {/* Recent activity - placeholder for now */}
-      <h2 className="text-lg font-semibold text-slate-800 mb-3">Recent Activity</h2>
-      <div className="space-y-3">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <div className="mr-4 bg-emerald-100 p-2 rounded">
-                <UtensilsCrossed className="h-5 w-5 text-emerald-600" />
-              </div>
+          )}
+          
+          {(!recentActivity.meals || recentActivity.meals.length === 0) && 
+           (!recentActivity.journals || recentActivity.journals.length === 0) && (
+            <div className="text-center py-4 text-slate-500">
+              <p className="font-medium">Start tracking your nutrition journey</p>
+              <p className="text-sm">Log meals and journal entries to see them here</p>
+            </div>
+          )}
+        </div>
+      </section>
+      
+      {/* Upcoming Reminders */}
+      <section className="bg-white rounded-xl shadow-sm p-4">
+        <h2 className="text-lg font-medium text-slate-800 mb-3">Upcoming</h2>
+        {upcomingReminders && upcomingReminders.length > 0 ? (
+          upcomingReminders.map(reminder => (
+            <div key={reminder.id} className="flex items-center space-x-3 text-slate-600">
+              <Calendar size={20} className="text-emerald-600" />
               <div>
-                <p className="font-medium text-slate-800">Breakfast</p>
-                <p className="text-sm text-slate-500">Today, 8:30 AM • 420 kcal</p>
+                <p className="font-medium">{reminder.title}</p>
+                <p className="text-sm text-slate-500">Today at {reminder.time}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <div className="mr-4 bg-pink-100 p-2 rounded">
-                <Heart className="h-5 w-5 text-pink-600" />
-              </div>
-              <div>
-                <p className="font-medium text-slate-800">Wellness Journal Entry</p>
-                <p className="text-sm text-slate-500">Today, 9:15 AM</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          ))
+        ) : (
+          <div className="text-sm text-slate-500 italic">
+            No reminders scheduled for today
+          </div>
+        )}
+      </section>
+    </div>
+  );
+};
+
+const ProgressCard = ({ icon, title, progress, total }) => {
+  const percentage = total > 0 ? (progress / total) * 100 : 0;
+  
+  return (
+    <div className="bg-slate-50 rounded-lg p-3">
+      <div className="flex items-center mb-2">
+        {icon}
+        <span className="ml-2 text-sm font-medium text-slate-700">{title}</span>
       </div>
+      <div className="relative h-2 bg-slate-200 rounded overflow-hidden">
+        <div 
+          className="absolute h-full bg-emerald-500 rounded" 
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+      <p className="text-xs text-slate-500 mt-1">
+        {progress} of {total} completed
+      </p>
+    </div>
+  );
+};
+
+const QuickActionButton = ({ icon, label, color, onClick }) => {
+  return (
+    <button 
+      className={`${color} rounded-xl flex flex-col items-center justify-center p-4 text-white`}
+      onClick={onClick}
+    >
+      <div className="bg-white/20 rounded-full p-2 mb-1">
+        {icon}
+      </div>
+      <span className="text-xs font-medium">{label}</span>
+    </button>
+  );
+};
+
+const ActivityCard = ({ icon, title, subtitle, time }) => {
+  return (
+    <div className="flex items-center p-3 bg-slate-50 rounded-lg">
+      <div className="bg-white p-2 rounded-full mr-3">
+        {icon}
+      </div>
+      <div className="flex-1">
+        <h3 className="text-sm font-medium text-slate-800">{title}</h3>
+        <p className="text-xs text-slate-500">{subtitle}</p>
+      </div>
+      <span className="text-xs text-slate-400">{time}</span>
     </div>
   );
 };

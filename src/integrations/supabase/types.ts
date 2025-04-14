@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      daily_goals: {
+        Row: {
+          created_at: string
+          id: string
+          journals_goal: number
+          meals_goal: number
+          updated_at: string
+          user_id: string
+          water_goal: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          journals_goal?: number
+          meals_goal?: number
+          updated_at?: string
+          user_id: string
+          water_goal?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          journals_goal?: number
+          meals_goal?: number
+          updated_at?: string
+          user_id?: string
+          water_goal?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_goals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorite_foods: {
         Row: {
           calories_per_serving: number | null
@@ -328,12 +366,108 @@ export type Database = {
           },
         ]
       }
+      reminders: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          reminder_type: string
+          scheduled_days: number[] | null
+          scheduled_time: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          reminder_type: string
+          scheduled_days?: number[] | null
+          scheduled_time: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          reminder_type?: string
+          scheduled_days?: number[] | null
+          scheduled_time?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string
+          longest_streak: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string
+          longest_streak?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string
+          longest_streak?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_streaks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_recent_activity: {
+        Args: { user_id: string; limit_count?: number }
+        Returns: Json
+      }
+      get_today_progress: {
+        Args: { user_id: string }
+        Returns: Json
+      }
+      get_upcoming_reminders: {
+        Args: { user_id: string; limit_count?: number }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
