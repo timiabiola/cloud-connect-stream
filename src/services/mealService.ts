@@ -128,8 +128,8 @@ export const searchFoods = async (
  * @param userId - The user's ID
  * @param mealType - Type of meal (Breakfast, Lunch, Dinner, Snack)
  * @param mealTime - Time of the meal (HH:MM format)
- * @param mealDate - Date of the meal (defaults to current date)
  * @param mealItems - Array of food items in the meal
+ * @param mealDate - Date of the meal (defaults to current date)
  * @returns The created meal ID if successful, null otherwise
  */
 export const saveMeal = async (
