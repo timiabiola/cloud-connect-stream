@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UtensilsCrossed, BookHeart, ChevronRight } from 'lucide-react';
+import { BookHeart, ChevronRight } from 'lucide-react';
 import { RecentActivityType } from '@/services/homeService';
 import ActivityCard from './ActivityCard';
 
@@ -19,22 +19,6 @@ const RecentActivity = ({ activity }: RecentActivityProps) => {
       </div>
       
       <div className="space-y-3">
-        {activity.meals && activity.meals.length > 0 ? (
-          activity.meals.map(meal => (
-            <ActivityCard 
-              key={meal.id}
-              icon={<UtensilsCrossed size={16} className="text-emerald-600" />}
-              title={meal.type}
-              subtitle={meal.items}
-              time={meal.time}
-            />
-          ))
-        ) : (
-          <div className="text-sm text-slate-500 italic text-center py-2">
-            No meals logged yet today
-          </div>
-        )}
-        
         {activity.journals && activity.journals.length > 0 ? (
           activity.journals.map(entry => (
             <ActivityCard 
@@ -51,11 +35,10 @@ const RecentActivity = ({ activity }: RecentActivityProps) => {
           </div>
         )}
         
-        {(!activity.meals || activity.meals.length === 0) && 
-         (!activity.journals || activity.journals.length === 0) && (
+        {(!activity.journals || activity.journals.length === 0) && (
           <div className="text-center py-4 text-slate-500">
-            <p className="font-medium">Start tracking your nutrition journey</p>
-            <p className="text-sm">Log meals and journal entries to see them here</p>
+            <p className="font-medium">Start tracking your wellness journey</p>
+            <p className="text-sm">Journal your thoughts and feelings to see them here</p>
           </div>
         )}
       </div>

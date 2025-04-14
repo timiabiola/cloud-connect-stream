@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UtensilsCrossed, BookHeart, Mic } from 'lucide-react';
+import { BookHeart, Mic } from 'lucide-react';
 import QuickActionButton from './QuickActionButton';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,13 +20,7 @@ const QuickActions = ({ onActionSelect }: QuickActionsProps) => {
   };
 
   return (
-    <section className="grid grid-cols-3 gap-3">
-      <QuickActionButton 
-        icon={<UtensilsCrossed size={20} />}
-        label="Log Meal"
-        color="bg-emerald-600"
-        onClick={() => onActionSelect('meal')}
-      />
+    <section className="grid grid-cols-2 gap-3">
       <QuickActionButton 
         icon={<BookHeart size={20} />}
         label="Journal"

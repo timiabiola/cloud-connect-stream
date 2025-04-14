@@ -27,7 +27,7 @@ const HomeScreen = () => {
   const [todayProgress, setTodayProgress] = useState<TodayProgressType>({
     meals: 0,
     journals: 0,
-    totalMeals: 3,
+    totalMeals: 0,
     totalJournals: 3,
     streakDays: 0
   });
@@ -87,9 +87,6 @@ const HomeScreen = () => {
   const handleQuickAction = (action: string) => {
     // Navigate to the appropriate screen based on action
     switch(action) {
-      case 'meal':
-        window.location.hash = 'meal';
-        break;
       case 'journal':
         window.location.hash = 'journal';
         break;

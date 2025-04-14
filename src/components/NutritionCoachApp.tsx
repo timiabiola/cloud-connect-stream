@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Home, UtensilsCrossed, BookHeart, BarChart2, User } from 'lucide-react';
+import { Home, BookHeart, BarChart2, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 // Import screen components that we'll create later
 import HomeScreen from '@/components/screens/HomeScreen';
-import MealTrackingScreen from '@/components/screens/MealTrackingScreen';
 import MindfulnessJournalScreen from '@/components/screens/MindfulnessJournalScreen';
 import InsightsScreen from '@/components/screens/InsightsScreen';
 import ProfileScreen from '@/components/screens/ProfileScreen';
@@ -56,8 +55,6 @@ const NutritionCoachApp = () => {
     switch(activeTab) {
       case 'home':
         return <HomeScreen />;
-      case 'meal':
-        return <MealTrackingScreen />;
       case 'journal':
         return <MindfulnessJournalScreen />;
       case 'insights':
@@ -74,7 +71,7 @@ const NutritionCoachApp = () => {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-slate-50">
         <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center animate-pulse mb-4">
-          <UtensilsCrossed size={32} className="text-emerald-600" />
+          <BookHeart size={32} className="text-emerald-600" />
         </div>
         <h1 className="text-xl font-semibold text-slate-800 mb-2">Nutrition Coach</h1>
         <p className="text-slate-500">Loading your wellness journey...</p>
@@ -97,12 +94,6 @@ const NutritionCoachApp = () => {
             label="Home" 
             isActive={activeTab === 'home'} 
             onClick={() => setActiveTab('home')} 
-          />
-          <NavButton 
-            icon={<UtensilsCrossed size={24} />} 
-            label="Meals" 
-            isActive={activeTab === 'meal'} 
-            onClick={() => setActiveTab('meal')} 
           />
           <NavButton 
             icon={<BookHeart size={24} />} 

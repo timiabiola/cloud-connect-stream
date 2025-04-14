@@ -53,7 +53,7 @@ export const getTodayProgress = async (userId: string): Promise<TodayProgressTyp
     return data as TodayProgressType || {
       meals: 0,
       journals: 0,
-      totalMeals: 3,
+      totalMeals: 0,
       totalJournals: 3,
       streakDays: 0
     };
